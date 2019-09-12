@@ -62,24 +62,24 @@ public class Player : MonoBehaviour
 
 	private void InternalLockUpdate()
 	{
-		if(Input.GetKeyUp(KeyCode.Escape))
-		{
-			_isCursorLocked = false;
-		}
-		else if(Input.GetMouseButtonUp(0))
-		{
-			_isCursorLocked = true;
-		}
+		//if(Input.GetKeyUp(KeyCode.Escape))
+		//{
+		//	_isCursorLocked = false;
+		//}
+		//else if(Input.GetMouseButtonUp(0))
+		//{
+		//	_isCursorLocked = true;
+		//}
 
-		if (_isCursorLocked)
-		{
-			Cursor.lockState = CursorLockMode.Locked;
-			Cursor.visible = false;
-		}
-		else
-		{
-			Cursor.lockState = CursorLockMode.None;
-			Cursor.visible = true;
-		}
+		//if (_isCursorLocked)
+		//{
+		//	Cursor.lockState = CursorLockMode.Locked;
+		//	Cursor.visible = false;
+		//}
+		//else
+		//{
+		//	Cursor.lockState = CursorLockMode.None;
+		//	Cursor.visible = true;
+		//}
 	}
 }

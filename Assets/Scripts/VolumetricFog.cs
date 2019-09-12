@@ -37,7 +37,6 @@ class VolumetricFog : MonoBehaviour
     private static readonly int SP_FOG_RENDERTARGET_LINEAR = Shader.PropertyToID("FogRendertargetLinear");
     private static readonly int SP_MIE_SCATTERING_COEF = Shader.PropertyToID("_MieScatteringCoef");
     private static readonly int SP_KFACTOR = Shader.PropertyToID("_kFactor");
-    private static readonly int SP_NOISE_TEXTURE = Shader.PropertyToID("_NoiseTexture");
     private static readonly int SP_NOISE_TEX3D = Shader.PropertyToID("_NoiseTex3D");
     private static readonly int SP_INVERSE_PROJECTION_MATRIX = Shader.PropertyToID("InverseProjectionMatrix");
     private static readonly int SP_INVERSE_VIEW_MATRIX = Shader.PropertyToID("InverseViewMatrix");
@@ -166,12 +165,6 @@ class VolumetricFog : MonoBehaviour
     public Vector3 WindDirection = Vector3.right;
     public float Speed = 1f;
 
-    [Header("Debug")]
-    /// <summary>
-    /// 噪声源的类型
-    /// </summary>
-    public NoiseSource NoiseSource = NoiseSource.Texture2D;
-
     /// <summary>
     /// 是否启用雾和背景的混合
     /// </summary>
@@ -200,14 +193,12 @@ class VolumetricFog : MonoBehaviour
     private float m_KFactor;
 
     private Texture3D m_FogTexture3D;
-    private RenderTexture m_FogTexture3DCompute;
-    private RenderTexture m_FogTexture3DSimplex;
 
     private CommandBuffer m_AfterShadowPass;
 
     private Camera m_CurrentCamera;
 
-    protected void Start()
+    protected void OnEnable()
     {
         m_CalculateFogMaterial = new Material(CalculateFogShader);
         m_CalculateFogMaterial.hideFlags = HideFlags.HideAndDontSave;
@@ -231,23 +222,11 @@ class VolumetricFog : MonoBehaviour
         }
         #endregion
 
-        #region Generate 3DTexture
-        switch (NoiseSource)
-        {
-            case NoiseSource.Texture3D:
-                m_FogTexture3D = TextureUtilities.CreateFogLUT3DFrom2DSlices(FogTexture2D, Noise3DTextureDimensions);
-                break;
-            case NoiseSource.Texture3DCompute:
-                m_FogTexture3DCompute = TextureUtilities.CreateFogLUT3DFrom2DSlicesCompute(FogTexture2D, Noise3DTextureDimensions, Create3DLUTShader);
-                break;
-            case NoiseSource.SimplexNoiseCompute:
-                m_FogTexture3DSimplex = TextureUtilities.CreateFogLUT3DFromSimplexNoise(Noise3DTextureDimensions, Create3DLUTShader);
-                break;
-        }
-        #endregion
+        // Generate 3DTexture
+        m_FogTexture3D = TextureUtilities.CreateFogLUT3DFrom2DSlices(FogTexture2D, Noise3DTextureDimensions);
     }
 
-    protected void OnDestroy()
+    protected void OnDisable()
     {
         #region Remove Light CommandBuffer
         // based on https://interplayoflight.wordpress.com/2015/07/03/adventures-in-postprocessing-with-unity/    
@@ -274,8 +253,8 @@ class VolumetricFog : MonoBehaviour
         }
 
         SetMieScattering();
-        SetNoiseSource();
 
+        m_CalculateFogMaterial.SetTexture(SP_NOISE_TEX3D, m_FogTexture3D);
         Shader.SetGlobalMatrix(SP_INVERSE_VIEW_MATRIX, m_CurrentCamera.cameraToWorldMatrix);
         Shader.SetGlobalMatrix(SP_INVERSE_PROJECTION_MATRIX, m_CurrentCamera.projectionMatrix.inverse);
 
@@ -425,40 +404,6 @@ class VolumetricFog : MonoBehaviour
                 Debug.LogWarning($"Mie scattering approximation {MieScatteringApproximation} is not handled by SetMieScattering()");
                 break;
         }
-    }
-
-    /// <summary>
-    /// 设置Shader中雾使用的Noise源
-    /// </summary>
-    private void SetNoiseSource()
-    {
-        ToggleMaterialKeyword(m_CalculateFogMaterial, "SNOISE", false);
-        ToggleMaterialKeyword(m_CalculateFogMaterial, "NOISE2D", false);
-        ToggleMaterialKeyword(m_CalculateFogMaterial, "NOISE3D", false);
-
-        switch (NoiseSource)
-        {
-            case NoiseSource.SimplexNoise:
-                ToggleMaterialKeyword(m_CalculateFogMaterial, "SNOISE", true);
-                break;
-            case NoiseSource.Texture2D:
-                m_CalculateFogMaterial.SetTexture(SP_NOISE_TEXTURE, FogTexture2D);
-                ToggleMaterialKeyword(m_CalculateFogMaterial, "NOISE2D", true);
-                break;
-            case NoiseSource.Texture3D:
-                m_CalculateFogMaterial.SetTexture(SP_NOISE_TEX3D, m_FogTexture3D);
-                ToggleMaterialKeyword(m_CalculateFogMaterial, "NOISE3D", true);
-                break;
-            case NoiseSource.SimplexNoiseCompute:
-                m_CalculateFogMaterial.SetTexture(SP_NOISE_TEX3D, m_FogTexture3DSimplex);
-                ToggleMaterialKeyword(m_CalculateFogMaterial, "NOISE3D", true);
-                break;
-            case NoiseSource.Texture3DCompute:
-                m_CalculateFogMaterial.SetTexture(SP_NOISE_TEX3D, m_FogTexture3DCompute);
-                ToggleMaterialKeyword(m_CalculateFogMaterial, "NOISE3D", true);
-                break;
-        }
-
     }
 
     private void ToggleMaterialKeyword(Material shaderMat, string keyword, bool enabled)

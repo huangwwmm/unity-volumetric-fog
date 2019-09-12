@@ -29,56 +29,9 @@ public static class TextureUtilities
         Texture3D texture3D = new Texture3D(dimensions.x, dimensions.y, dimensions.z, TextureFormat.RGBAHalf, true);
         texture3D.SetPixels(colors);
         texture3D.Apply();
-
         return texture3D;
     }
-
-    public static RenderTexture CreateFogLUT3DFrom2DSlicesCompute(Texture2D fogTexture, Vector3Int dimensions, ComputeShader shader)
-    {
-        RenderTexture fogLut3D = new RenderTexture(dimensions.x
-            , dimensions.y
-            , 0
-            , RenderTextureFormat.ARGB32
-            , RenderTextureReadWrite.Linear)
-        {
-            volumeDepth = dimensions.z,
-            dimension = TextureDimension.Tex3D,
-            enableRandomWrite = true,
-            name = "FogLUT3DFrom2D"
-        };
-
-        fogLut3D.Create();
-
-        int kernel = shader.FindKernel("Create3DLUTFrom2D");
-        shader.SetTexture(kernel, "_FogLUT3DFrom2D", fogLut3D);
-        shader.SetTexture(kernel, "_FogTexture2D", fogTexture);
-        shader.Dispatch(kernel, dimensions.x, dimensions.y, dimensions.z);
-
-        return fogLut3D;
-    }
-
-    public static RenderTexture CreateFogLUT3DFromSimplexNoise(Vector3Int dimensions, ComputeShader shader)
-    {
-        RenderTexture fogLut3D = new RenderTexture(dimensions.x
-            , dimensions.y
-            , 0
-            , RenderTextureFormat.RGBAUShort
-            , RenderTextureReadWrite.Linear)
-        {
-            volumeDepth = dimensions.z,
-            dimension = TextureDimension.Tex3D,
-            enableRandomWrite = true,
-            name = "FogLUT3DSnoise"
-        };
-        fogLut3D.Create();
-
-        int kernel = shader.FindKernel("Create3DLUTSimplexNoise");
-        shader.SetTexture(kernel, "_FogLUT3DSNoise", fogLut3D);
-        shader.Dispatch(kernel, dimensions.x, dimensions.y, dimensions.z);
-
-        return fogLut3D;
-    }
-
+    
     /// <summary>
     /// 从texture生成一个新的可读的Texture2D<see cref="Texture2D.isReadable"/>>
     /// https://support.unity3d.com/hc/en-us/articles/206486626-How-can-I-get-pixels-from-unreadable-textures

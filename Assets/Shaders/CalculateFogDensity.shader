@@ -19,15 +19,11 @@
     #pragma shader_feature __ CS_SCATTERING
     #pragma shader_feature __ SCHLICK_HG_SCATTERING
     #pragma shader_feature __ LIMITFOGSIZE
-    #pragma shader_feature __ NOISE2D
-    #pragma shader_feature __ NOISE3D
-    #pragma shader_feature __ SNOISE
     
     UNITY_DECLARE_SHADOWMAP(ShadowMap);
     
     uniform sampler2D _MainTex;
     uniform sampler2D _CameraDepthTexture;
-    uniform sampler2D _NoiseTexture;
     uniform sampler2D _BlueNoiseTexture;
     
     uniform sampler3D _NoiseTex3D;
@@ -71,6 +67,7 @@
         float4 pos: SV_POSITION;
         float2 uv: TEXCOORD0;
         float3 ray: TEXCOORD1;
+        float4 temp: TEXCOORD2;
     };
     
     v2f vert(appdata_img v)
@@ -79,16 +76,15 @@
         o.pos = UnityObjectToClipPos(v.vertex);
         o.uv = v.texcoord;
         
-        //transform clip pos to view space
+        // transform clip pos to view space
         float4 clipPos = float4(v.texcoord * 2.0 - 1.0, 1.0, 1.0);
         float4 cameraRay = mul(InverseProjectionMatrix, clipPos);
-        
-        //o.ray = mul(unity_ObjectToWorld, v.vertex);
+        // 图1
         o.ray = cameraRay / cameraRay.w;
         
+        o.temp = _Time;
         return o;
     }
-    
     
     // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
     float rand(float2 co)
@@ -151,7 +147,6 @@
     // get the coefficients of each shadow cascade
     fixed4 getCascadeWeights(float z)
     {
-        
         float4 zNear = float4(z >= _LightSplitsNear);
         float4 zFar = float4(z < _LightSplitsFar);
         float4 weights = zNear * zFar;
@@ -243,22 +238,12 @@
     
     float sampleNoise(float3 position)
     {
-        
         float3 offSet = float3(_Time.yyy) * _FogSpeed * _FogDirection;
         
         position *= _NoiseScale;
         position += offSet;
         
-        float noiseValue = 0;
-        
-        #if defined(SNOISE)
-            
-            noiseValue = snoise(float4(position, _SinTime.y)) * 0.1;
-        #elif defined(NOISE2D)
-            noiseValue = tex2D(_NoiseTexture, position);
-        #elif defined(NOISE3D)
-            noiseValue = tex3D(_NoiseTex3D, position);
-        #endif
+        float noiseValue = tex3D(_NoiseTex3D, position);
         return noiseValue;
     }
     
@@ -311,16 +296,14 @@
     
     fixed4 frag(v2f i): SV_Target
     {
-        
         // read depth and reconstruct world position
         float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv);
         
         //linearise depth
         float lindepth = Linear01Depth(depth);
         
-        //get view and then world positions
+        //get view and then world positions 图1
         float4 viewPos = float4(i.ray.xyz * lindepth, 1);
-        
         float3 worldPos = mul(InverseViewMatrix, viewPos).xyz;
         
         //calculate weights for cascade split selection
@@ -328,28 +311,26 @@
         
         // ray direction in world space
         float3 rayDir = normalize(worldPos - _WorldSpaceCameraPos.xyz);
-        //float3 rayDir = i.ray - _WorldSpaceCameraPos;
-        //rayDir *= lindepth;
-        
         float rayDistance = length(worldPos - _WorldSpaceCameraPos.xyz);
-        // float rayDistance = length(rayDir);
         
         //calculate step size for raymarching
         float stepSize = rayDistance / STEPS;
         
         float3 currentPos = _WorldSpaceCameraPos.xyz;
         
-        //  currentPos += _ProjectionParams.y; // start at camera's near plane
-        
+        // 这里是不是算错了？
         // https://github.com/SlightlyMad/VolumetricLights/blob/master/Assets/Shaders/VolumetricLight.shader
-        float2 interleavedPosition = (fmod(floor(i.pos.xy), 8.0));
-        float offset = tex2D(_BlueNoiseTexture, interleavedPosition / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).w;
+        // float2 interleavedPosition = (fmod(floor(i.pos.xy), 8.0));
+        // float offset = tex2D(_BlueNoiseTexture, interleavedPosition / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).w;
+        // currentPos += stepSize * rayDir * offset;
         
-        currentPos += stepSize * rayDir * offset;
+        currentPos += stepSize * rayDir;
         
         float3 litFogColor = _LightIntensity * _FogColor;
         
+        // 透射率
         float transmittance = 1;
+        // 消光率
         float extinction = 0;
         float3 result = 0;
         
@@ -362,22 +343,21 @@
         [loop]
         for (; currentSteps < STEPS; currentSteps ++)
         {
-            
+            // 光线透不过来
             if (transmittance < 0.001)
             {
                 break;
             }
             
-            float distanceSample = 0;
-            
             #if defined(LIMITFOGSIZE)
+                // 到雾的距离，用于判断该点是否有雾
+                float distanceSample = 0;
                 distanceSample = map(currentPos); // sample distance field at current position
-            #endif
-            
-            if (distanceSample < 0.0001)
-            {
-                // we are inside the predefined cube
+                if (distanceSample < 0.0001)
+                {
+                #endif
                 
+                // we are inside the predefined cube
                 float noiseValue = sampleNoise(currentPos);
                 
                 //modulate fog density by a noise value to make it more interesting
@@ -422,11 +402,14 @@
                 // result += saturate(inScattering) * transmittance * stepSize * fColor;
                 result += inScattering * stepSize * fColor;
                 // result += inScattering * transmittance * 1/STEPS * fColor; PREMULTIPLIED ALPHA?
-            }
-            else
-            {
-                result += _FogColor * _LightIntensity;
-            }
+                
+                #if defined(LIMITFOGSIZE)
+                }
+                else
+                {
+                    result += _FogColor * _LightIntensity;
+                }
+            #endif
             
             currentPos += rayDir * stepSize; // step forward along ray
         }// raymarch loop
