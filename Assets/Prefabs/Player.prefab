@@ -186,45 +186,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21738455dcf6b354c81e21a6a4efa6e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _CalculateFogShader: {fileID: 4800000, guid: f23c80f7a6f11ab4ca09d8bf57f45523, type: 3}
-  _ApplyBlurShader: {fileID: 4800000, guid: dacc5cc659bad3b41b48782cae543e86, type: 3}
-  _ApplyFogShader: {fileID: 4800000, guid: 234a6daa6de91c84abe7ad7b0909739f, type: 3}
-  _Create3DLUTShader: {fileID: 7200000, guid: 9ec5b97ad6003dd4d9006df2f588ae3a, type: 3}
+  CalculateFogShader: {fileID: 4800000, guid: f23c80f7a6f11ab4ca09d8bf57f45523, type: 3}
+  ApplyBlurShader: {fileID: 4800000, guid: dacc5cc659bad3b41b48782cae543e86, type: 3}
+  ApplyFogShader: {fileID: 4800000, guid: 234a6daa6de91c84abe7ad7b0909739f, type: 3}
+  Create3DLUTShader: {fileID: 7200000, guid: 9ec5b97ad6003dd4d9006df2f588ae3a, type: 3}
   SunLight: {fileID: 0}
   FogLightCasters:
   - {fileID: 0}
-  _FogTexture2D: {fileID: 2800000, guid: b8f5422c90699b147a50d5e2bd3b7509, type: 3}
-  _LimitFogInSize: 0
-  _FogWorldPosition: {x: 111.61, y: 3, z: 100}
-  _FogSize: 86
-  _RenderTextureResDivision: 1
-  _RayMarchSteps: 128
-  _UseRayleighScattering: 1
-  _RayleighScatteringCoef: 0.2
-  _MieScatteringCoef: 0.2
-  _MieScatteringApproximation: 1
-  _FogDensityCoef: 0.3
-  _ExtinctionCoef: 0.1
-  _Anisotropy: 0.4
-  _HeightDensityCoef: 0.17
-  _BaseHeightDensity: 30.62
-  _BlurIterations: 4
-  _BlurDepthFalloff: 100
-  _BlurOffsets: {x: 1, y: 2, z: 3}
-  _BlurWeights: {x: 0.2, y: 0.1, z: 0.05}
-  _FogInShadowColor: {r: 0.0627451, g: 0.20784314, b: 0.49019608, a: 1}
-  _FogInLightColor: {r: 0.39607844, g: 0.2509804, b: 0.13725491, a: 1}
-  _AmbientFog: 0.2
-  _LightIntensity: 1.1
-  _WindDirection: {x: 1, y: 0, z: 0}
-  _Speed: 0.5
-  _NoiseSource: 8
-  _AddSceneColor: 1
-  _BlurEnabled: 1
-  _ShadowsEnabled: 1
-  _HeightFogEnabled: 1
-  _NoiseScale: 0.05
-  _3DNoiseTextureDimensions: {x: 48, y: 48, z: 64}
+  FogTexture2D: {fileID: 2800000, guid: b8f5422c90699b147a50d5e2bd3b7509, type: 3}
+  LimitFogInSize: 0
+  FogWorldPosition: {x: 111.61, y: 3, z: 100}
+  FogSize: 86
+  RenderTextureResDivision: 1
+  RayMarchSteps: 128
+  UseRayleighScattering: 1
+  RayleighScatteringCoef: 0.2
+  MieScatteringCoef: 0.2
+  MieScatteringApproximation: 1
+  FogDensityCoef: 0.3
+  ExtinctionCoef: 0.1
+  Anisotropy: 0.4
+  HeightDensityCoef: 0.17
+  BaseHeightDensity: 30.62
+  BlurIterations: 4
+  BlurDepthFalloff: 100
+  BlurOffsets: {x: 1, y: 2, z: 3}
+  BlurWeights: {x: 0.2, y: 0.1, z: 0.05}
+  FogInShadowColor: {r: 0.0627451, g: 0.20784314, b: 0.49019608, a: 1}
+  FogInLightColor: {r: 0.39607844, g: 0.2509804, b: 0.13725491, a: 1}
+  AmbientFog: 0.2
+  LightIntensity: 1.1
+  WindDirection: {x: 1, y: 0, z: 0}
+  Speed: 0.5
+  NoiseSource: 8
+  AddSceneColor: 1
+  BlurEnabled: 1
+  ShadowsEnabled: 1
+  HeightFogEnabled: 1
+  NoiseScale: 0.05
+  Noise3DTextureDimensions: {x: 48, y: 48, z: 64}
 --- !u!124 &124758704881637454
 Behaviour:
   m_ObjectHideFlags: 1

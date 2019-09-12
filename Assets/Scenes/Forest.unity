@@ -161,7 +161,7 @@ PrefabInstance:
         type: 3}
       propertyPath: SunLight
       value: 
-      objectReference: {fileID: 597845561}
+      objectReference: {fileID: 597845560}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
       propertyPath: FogLightCasters.Array.data[0]
@@ -169,127 +169,136 @@ PrefabInstance:
       objectReference: {fileID: 597845560}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _FPSTarget
+      propertyPath: FPSTarget
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _NoiseSource
+      propertyPath: NoiseSource
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _OptimizeSettingsFPS
+      propertyPath: OptimizeSettingsFPS
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _UseRayleighScattering
+      propertyPath: UseRayleighScattering
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _UseLightColorForFog
+      propertyPath: UseLightColorForFog
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _RenderTextureResDivision
+      propertyPath: RenderTextureResDivision
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _BlurEnabled
+      propertyPath: BlurEnabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _LightIntensity
+      propertyPath: LightIntensity
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _RayMarchSteps
+      propertyPath: RayMarchSteps
       value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _FogDensityCoef
+      propertyPath: FogDensityCoef
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _ExtinctionCoef
+      propertyPath: ExtinctionCoef
       value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _FogInLightColor.r
+      propertyPath: FogInLightColor.r
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _FogInLightColor.g
+      propertyPath: FogInLightColor.g
       value: 0.9507965
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _FogInLightColor.b
+      propertyPath: FogInLightColor.b
       value: 0.6839622
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _BlurIterations
+      propertyPath: BlurIterations
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _RayleighScatteringCoef
+      propertyPath: RayleighScatteringCoef
       value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _MieScatteringCoef
+      propertyPath: MieScatteringCoef
       value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _MieScatteringApproximation
+      propertyPath: MieScatteringApproximation
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _AmbientFog
+      propertyPath: AmbientFog
       value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _BlurDepthFalloff
+      propertyPath: BlurDepthFalloff
       value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _HeightFogEnabled
+      propertyPath: HeightFogEnabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _Anisotropy
+      propertyPath: Anisotropy
       value: 0.19
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _AddSceneColor
+      propertyPath: AddSceneColor
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _BlueNoiseTexture2D
+      propertyPath: BlueNoiseTexture2D
       value: 
       objectReference: {fileID: 2800000, guid: e27671804ab5acf4c85490a01943c961, type: 3}
     - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
         type: 3}
-      propertyPath: _ShadowsEnabled
+      propertyPath: ShadowsEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114654324437572800, guid: 1c135b10b7692ea4383285d4f646a727,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1449617652394336, guid: 1c135b10b7692ea4383285d4f646a727, type: 3}
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
