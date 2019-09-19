@@ -86,63 +86,16 @@
         return o;
     }
     
-    // http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
-    float rand(float2 co)
-    {
-        float a = 12.9898;
-        float b = 78.233;
-        float c = 43758.5453;
-        float dt = dot(co.xy, float2(a, b));
-        float sn = fmod(dt, 3.14);
-        
-        return 2.0 * frac(sin(sn) * c) - 1.0;
-    }
-    
     // This is the distance field function.  The distance field represents the closest distance to the surface
     // of any object we put in the scene.  If the given point (point p) is inside of an object, we return a
     // negative answer.
     // return : result of distance field
-    float map(float3 p)
+    float distanceToFogBox(float3 p)
     {
         float d_box = sdBox(p - float3(_FogWorldPosition), _FogSize);
         return d_box;
     }
-    
-    //-----------------------------------------------------------------------------------------
-    // GetCascadeWeights_SplitSpheres
-    // from https://github.com/SlightlyMad/VolumetricLights/blob/master/Assets/Shaders/VolumetricLight.shader
-    //-----------------------------------------------------------------------------------------
-    inline fixed4 GetCascadeWeights_SplitSpheres(float3 wpos)
-    {
-        float3 fromCenter0 = wpos.xyz - unity_ShadowSplitSpheres[0].xyz;
-        float3 fromCenter1 = wpos.xyz - unity_ShadowSplitSpheres[1].xyz;
-        float3 fromCenter2 = wpos.xyz - unity_ShadowSplitSpheres[2].xyz;
-        float3 fromCenter3 = wpos.xyz - unity_ShadowSplitSpheres[3].xyz;
-        float4 distances2 = float4(dot(fromCenter0, fromCenter0), dot(fromCenter1, fromCenter1), dot(fromCenter2, fromCenter2), dot(fromCenter3, fromCenter3));
-        
-        fixed4 weights = float4(distances2 < unity_ShadowSplitSqRadii);
-        weights.yzw = saturate(weights.yzw - weights.xyz);
-        return weights;
-    }
-    
-    //-----------------------------------------------------------------------------------------
-    // GetCascadeShadowCoord
-    //-----------------------------------------------------------------------------------------
-    inline float4 GetCascadeShadowCoord(float4 wpos, fixed4 cascadeWeights)
-    {
-        float3 sc0 = mul(unity_WorldToShadow[0], wpos).xyz;
-        float3 sc1 = mul(unity_WorldToShadow[1], wpos).xyz;
-        float3 sc2 = mul(unity_WorldToShadow[2], wpos).xyz;
-        float3 sc3 = mul(unity_WorldToShadow[3], wpos).xyz;
-        
-        float4 shadowMapCoordinate = float4(sc0 * cascadeWeights[0] + sc1 * cascadeWeights[1] + sc2 * cascadeWeights[2] + sc3 * cascadeWeights[3], 1);
-        #if defined(UNITY_REVERSED_Z)
-            float  noCascadeWeights = 1 - dot(cascadeWeights, float4(1, 1, 1, 1));
-            shadowMapCoordinate.z += noCascadeWeights;
-        #endif
-        return shadowMapCoordinate;
-    }
-    
+       
     // https://docs.unity3d.com/Manual/DirLightShadows.html
     // get the coefficients of each shadow cascade
     fixed4 getCascadeWeights(float z)
@@ -183,7 +136,6 @@
     // https://cs.dartmouth.edu/~wjarosz/publications/dissertation/chapter4.pdf
     fixed4 getHenyeyGreenstein(float cosTheta)
     {
-        
         float n = 1 - (_Anisotropy * _Anisotropy); // 1 - (g * g)
         float c = cosTheta; // cos(x)
         float d = 1 + _Anisotropy * _Anisotropy - 2 * _Anisotropy * c; // 1 + g^2 - 2g*cos(x)
@@ -198,9 +150,7 @@
     // gpu pro 6 p. 224
     fixed4 getHeightDensity(float height)
     {
-        
         float ePow = pow(e, (-height * _HeightDensityCoef));
-        
         return _BaseHeightDensity * ePow;
     }
     
@@ -221,7 +171,6 @@
     // https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf
     float getSchlickScattering(float costheta)
     {
-        
         float o1 = 1 - (_kFactor * _kFactor);
         
         float sqr = (1 + _kFactor * costheta) * (1 + _kFactor * costheta);
@@ -242,15 +191,12 @@
         
         position *= _NoiseScale;
         position += offSet;
-        
-        float noiseValue = tex3D(_NoiseTex3D, position);
-        return noiseValue;
+        return tex3D(_NoiseTex3D, position);
     }
     
     // idea for inscattering : https://cboard.cprogramming.com/game-programming/116931-rayleigh-scattering-shader.html
     float getMieScattering(float cosTheta)
     {
-        
         float inScattering = 0;
         
         #if defined(SCHLICK_HG_SCATTERING)
@@ -284,7 +230,6 @@
     
     float getScattering(float cosTheta)
     {
-        
         float inScattering = 0;
         
         inScattering += getMieScattering(cosTheta);
@@ -318,14 +263,6 @@
         
         float3 currentPos = _WorldSpaceCameraPos.xyz;
         
-        // 这里是不是算错了？
-        // https://github.com/SlightlyMad/VolumetricLights/blob/master/Assets/Shaders/VolumetricLight.shader
-        // float2 interleavedPosition = (fmod(floor(i.pos.xy), 8.0));
-        // float offset = tex2D(_BlueNoiseTexture, interleavedPosition / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).w;
-        // currentPos += stepSize * rayDir * offset;
-        
-        currentPos += stepSize * rayDir;
-        
         float3 litFogColor = _LightIntensity * _FogColor;
         
         // 透射率
@@ -343,6 +280,9 @@
         [loop]
         for (; currentSteps < STEPS; currentSteps ++)
         {
+            // step forward along ray
+            currentPos += rayDir * stepSize;
+            
             // 光线透不过来
             if (transmittance < 0.001)
             {
@@ -352,17 +292,15 @@
             #if defined(LIMITFOGSIZE)
                 // 到雾的距离，用于判断该点是否有雾
                 float distanceSample = 0;
-                distanceSample = map(currentPos); // sample distance field at current position
+                distanceSample = distanceToFogBox(currentPos); // sample distance field at current position
                 if (distanceSample < 0.0001)
-                {
-                #endif
-                
+            #endif
+            {
                 // we are inside the predefined cube
                 float noiseValue = sampleNoise(currentPos);
                 
                 //modulate fog density by a noise value to make it more interesting
                 float fogDensity = noiseValue * _FogDensity;
-                
                 
                 #if defined(HEIGHTFOG)
                     float heightDensity = getHeightDensity(currentPos.y);
@@ -371,20 +309,13 @@
                 
                 extinction = _ExtinctionCoef * fogDensity;
                 
-                
                 //calculate transmittance by applying Beer law
                 transmittance *= getBeerLaw(extinction, stepSize);
                 
                 float inScattering = getScattering(cosTheta);
                 inScattering *= fogDensity;
                 #if SHADOWS_ON
-                    
-                    //   float4 weights = GetCascadeWeights_SplitSpheres(currentPos);
-                    
-                    
-                    
                     float4 shadowCoord = getShadowCoord(float4(currentPos, 1), weights);
-                    // float4 shadowCoord = GetCascadeShadowCoord(float4(currentPos,1), weights);
                     
                     //do shadow test and store the result
                     float shadowTerm = UNITY_SAMPLE_SHADOW(ShadowMap, shadowCoord);
@@ -392,32 +323,21 @@
                     //use shadow term to lerp between shadowed and lit fog colour, so as to allow fog in shadowed areas,
                     //add a bit of ambient fog so shadowed areas get some fog too
                     float3 fColor = lerp(_ShadowColor, litFogColor, shadowTerm + _AmbientFog);
-                #endif
-                
-                #if SHADOWS_OFF
+                #else
                     float3 fColor = litFogColor;
                 #endif
                 
                 //accumulate light
-                // result += saturate(inScattering) * transmittance * stepSize * fColor;
                 result += inScattering * stepSize * fColor;
-                // result += inScattering * transmittance * 1/STEPS * fColor; PREMULTIPLIED ALPHA?
-                
-                #if defined(LIMITFOGSIZE)
-                }
+            }
+            #if defined(LIMITFOGSIZE)
                 else
                 {
                     result += _FogColor * _LightIntensity;
                 }
             #endif
-            
-            currentPos += rayDir * stepSize; // step forward along ray
         }// raymarch loop
         
-        if (true)
-        {
-            //   return tex2D(_BlueNoiseTexture, i.uv);
-        }
         return float4(result, transmittance);
     }// frag
     
